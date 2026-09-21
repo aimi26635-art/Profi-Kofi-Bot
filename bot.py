@@ -436,12 +436,27 @@ def variant_name(
     показываем нейтральные мини-средний-большой.
     """
 
+     if (
+        category_id == "coffee"
+        and total_variants == 3
+    ):
+        if variant_index == 0:
+            return "Мини"
+
+        if variant_index == 1:
+            return "Средний"
+            
+         if variant_index == 2:
+            return "Большой"
+
+    return f"Вариант {variant_index + 1}"
+
     if (
         category_id == "iced_coffee"
         and total_variants == 2
     ):
         if variant_index == 0:
-            return "Обычный"
+            return "Мини"
 
         if variant_index == 1:
             return "Большой"
