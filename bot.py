@@ -358,6 +358,14 @@ async def address_button(
     )
 
 
+@dp.message(Command("address"))
+async def address_command(
+    message: types.Message,
+):
+
+    await address_button(message)
+
+
 # ============================================================
 # ДОСТАВКА
 # ============================================================
@@ -373,6 +381,13 @@ async def delivery_button(
         parse_mode="HTML",
     )
 
+
+@dp.message(Command("delivery"))
+async def delivery_command(
+    message: types.Message,
+):
+
+    await delivery_button(message)
 
 
 # ============================================================
@@ -1050,10 +1065,10 @@ async def start(
 
     await message.answer(
         "☕️ <b>Добро пожаловать в Profi Kofi!</b>\n\n"
-        "Мы рады видеть вас в нашем кофейном боте 🤎\n\n"
+        "Мы рады видеть вас в нашем кофейном боте 🤎\n"
         "Здесь вы можете быстро и удобно оформить заказ любимых напитков и закусок.\n"
         "Перед тем как перейти к выбору, рекомендуем ознакомиться с краткой информацией о работе бота — это поможет вам оформить заказ быстрее и без ошибок.\n"
-        "<a href=\"https://telegra.ph/Informaciya-o-bote-09-21</a>\n\n"
+        "<a href=\"https://telegra.ph/Informaciya-o-bote-09-21\">https://telegra.ph/Informaciya-o-bote-09-21</a>\n\n"
         "👇 Выберите нужный раздел ниже:",
         reply_markup=main_keyboard(),
         parse_mode="HTML",
@@ -1093,6 +1108,14 @@ async def menu(
         reply_markup=categories_keyboard(),
         parse_mode="HTML",
     )
+
+
+@dp.message(Command("menu"))
+async def menu_command(
+    message: types.Message,
+):
+
+    await menu(message)
 
 
 # ============================================================
@@ -1453,6 +1476,14 @@ async def cart_button(
     )
 
 
+@dp.message(Command("cart"))
+async def cart_command(
+    message: types.Message,
+):
+
+    await cart_button(message)
+
+
 @dp.callback_query(
     F.data == "cart"
 )
@@ -1772,6 +1803,33 @@ async def checkout(
     )
 
     await callback.answer()
+
+
+@dp.message(Command("order"))
+async def order_command(
+    message: types.Message,
+    state: FSMContext,
+):
+
+    user_id = message.from_user.id
+
+    if not get_cart(user_id):
+
+        await message.answer(
+            "Корзина пустая. Сначала добавьте товары в корзину."
+        )
+
+        return
+
+    await state.set_state(
+        OrderForm.name
+    )
+
+    await message.answer(
+        "📝 <b>Оформление заказа</b>\n\n"
+        "Как вас зовут?",
+        parse_mode="HTML",
+    )
 
 
 # ============================================================
@@ -3170,6 +3228,35 @@ async def main():
         "======================================"
     )
     print()
+
+    await bot.set_my_commands(
+        [
+            types.BotCommand(
+                command="start",
+                description="Перезапустить бота",
+            ),
+            types.BotCommand(
+                command="menu",
+                description="Открыть меню",
+            ),
+            types.BotCommand(
+                command="cart",
+                description="Открыть корзину",
+            ),
+            types.BotCommand(
+                command="order",
+                description="Оформить заказ",
+            ),
+            types.BotCommand(
+                command="delivery",
+                description="Доставка",
+            ),
+            types.BotCommand(
+                command="address",
+                description="Адрес и контакты",
+            ),
+        ]
+    )
 
     # Удаляем старый webhook перед запуском polling.
     # Иначе Telegram отвечает: can't use getUpdates while webhook is active.
