@@ -1053,7 +1053,7 @@ async def start(
         "Мы рады видеть вас в нашем кофейном боте 🤎\n\n"
         "Здесь вы можете быстро и удобно оформить заказ любимых напитков и закусок.\n"
         "Перед тем как перейти к выбору, рекомендуем ознакомиться с краткой информацией о работе бота — это поможет вам оформить заказ быстрее и без ошибок.\n"
-        "<a href=\"https://telegra.ph/Informaciya-o-bote-09-21\">https://telegra.ph/Informaciya-o-bote-09-21</a>\n\n"
+        "<a href=\"https://telegra.ph/Informaciya-o-bote-09-21</a>\n\n"
         "👇 Выберите нужный раздел ниже:",
         reply_markup=main_keyboard(),
         parse_mode="HTML",
