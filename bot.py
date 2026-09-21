@@ -72,39 +72,6 @@ DELIVERY_INFO = "Бесплатная доставка, Пн–Пт 08:00–17:0
 
 
 # ============================================================
-# АДРЕС
-# ============================================================
-
-@dp.message(F.text == "📍 АДРЕС")
-async def address_button(
-    message: types.Message,
-):
-    await message.answer(
-        f"📍 <b>{COFFEE_NAME}</b>\n\n"
-        f"{COFFEE_ADDRESS}\n\n"
-        f"📞 {COFFEE_PHONE}\n"
-        f"🗺 <a href=\"{COFFEE_MAP}\">Открыть карту</a>",
-        parse_mode="HTML",
-    )
-
-
-# ============================================================
-# ДОСТАВКА
-# ============================================================
-
-@dp.message(F.text == "🚚 ДОСТАВКА")
-async def delivery_button(
-    message: types.Message,
-):
-    await message.answer(
-        "🚚 <b>Доставка</b>\n\n"
-        f"{DELIVERY_INFO}\n\n"
-        f"📞 {COFFEE_PHONE}",
-        parse_mode="HTML",
-    )
-
-
-# ============================================================
 # МЕНЮ
 # ============================================================
 
@@ -372,6 +339,40 @@ bot = Bot(TOKEN)
 dp = Dispatcher(
     storage=MemoryStorage()
 )
+
+
+# ============================================================
+# АДРЕС
+# ============================================================
+
+@dp.message(F.text == "📍 АДРЕС")
+async def address_button(
+    message: types.Message,
+):
+    await message.answer(
+        f"📍 <b>{COFFEE_NAME}</b>\n\n"
+        f"{COFFEE_ADDRESS}\n\n"
+        f"📞 {COFFEE_PHONE}\n"
+        f"🗺 <a href=\"{COFFEE_MAP}\">Открыть карту</a>",
+        parse_mode="HTML",
+    )
+
+
+# ============================================================
+# ДОСТАВКА
+# ============================================================
+
+@dp.message(F.text == "🚚 ДОСТАВКА")
+async def delivery_button(
+    message: types.Message,
+):
+    await message.answer(
+        "🚚 <b>Доставка</b>\n\n"
+        f"{DELIVERY_INFO}\n\n"
+        f"📞 {COFFEE_PHONE}",
+        parse_mode="HTML",
+    )
+
 
 
 # ============================================================
