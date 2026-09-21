@@ -1627,7 +1627,7 @@ async def comment_add(
         "• без сахара\n"
         "• меньше льда\n"
         "• без сиропа\n"
-        "• добавить молока\n",
+        "• добавить молока",
         reply_markup=ReplyKeyboardMarkup(
             keyboard=[
                 [
