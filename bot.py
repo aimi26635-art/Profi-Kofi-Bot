@@ -428,26 +428,32 @@ def variant_name(
     total_variants,
 ):
     """
-    Для холодного кофе:
-    1 = Обычный
-    2 = Большой
-
-    Для остальных товаров с несколькими ценами
-    показываем нейтральные "Мини-Средний-Большой".
+    2 варианта: Обычный / Большой
+    3 варианта: Мини / Средний / Большой
     """
 
-    if (
-        category_id == "iced_coffee"
-        and total_variants == 2
-    ):
-        if variant_index == 0:
-            return "Мини"
+    if total_variants == 2:
+        names = {
+            0: "Обычный",
+            1: "Большой",
+        }
+        return names.get(
+            variant_index,
+            f"Вариант {variant_index + 1}"
+        )
 
-        if variant_index == 1:
-            return "Большой"
+    if total_variants == 3:
+        names = {
+            0: "Мини",
+            1: "Средний",
+            2: "Большой",
+        }
+        return names.get(
+            variant_index,
+            f"Вариант {variant_index + 1}"
+        )
 
     return f"Вариант {variant_index + 1}"
-
 
 # ============================================================
 # КОРЗИНА
