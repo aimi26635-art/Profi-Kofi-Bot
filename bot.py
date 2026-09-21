@@ -433,23 +433,8 @@ def variant_name(
     2 = Большой
 
     Для остальных товаров с несколькими ценами
-    показываем нейтральные мини-средний-большой.
+    показываем нейтральные Вариант 1-2-3.
     """
-
-     if (
-        category_id == "coffee"
-        and total_variants == 3
-    ):
-        if variant_index == 0:
-            return "Мини"
-
-        if variant_index == 1:
-            return "Средний"
-            
-         if variant_index == 2:
-            return "Большой"
-
-    return f"Вариант {variant_index + 1}"
 
     if (
         category_id == "iced_coffee"
