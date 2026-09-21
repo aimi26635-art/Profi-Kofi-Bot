@@ -1,4 +1,4 @@
-[20.09.2026 18:49] ᅠᅠ ᅠᅠ­: import asyncio
+import asyncio
 import html
 import re
 import os
@@ -23,6 +23,12 @@ from aiogram.fsm.storage.memory import MemoryStorage
 # ВСТАВЬ СЮДА НОВЫЙ ТОКЕН БОТА
 # Новый токен мне НЕ присылай.
 TOKEN = os.getenv("BOT_TOKEN")
+
+if not TOKEN:
+    raise RuntimeError(
+        "Не найден BOT_TOKEN. "
+        "Добавь переменную BOT_TOKEN в Railway."
+    )
 
 
 # ============================================================
@@ -66,6 +72,39 @@ DELIVERY_INFO = "Бесплатная доставка, Пн–Пт 08:00–17:0
 
 
 # ============================================================
+# АДРЕС
+# ============================================================
+
+@dp.message(F.text == "📍 АДРЕС")
+async def address_button(
+    message: types.Message,
+):
+    await message.answer(
+        f"📍 <b>{COFFEE_NAME}</b>\n\n"
+        f"{COFFEE_ADDRESS}\n\n"
+        f"📞 {COFFEE_PHONE}\n"
+        f"🗺 <a href=\"{COFFEE_MAP}\">Открыть карту</a>",
+        parse_mode="HTML",
+    )
+
+
+# ============================================================
+# ДОСТАВКА
+# ============================================================
+
+@dp.message(F.text == "🚚 ДОСТАВКА")
+async def delivery_button(
+    message: types.Message,
+):
+    await message.answer(
+        "🚚 <b>Доставка</b>\n\n"
+        f"{DELIVERY_INFO}\n\n"
+        f"📞 {COFFEE_PHONE}",
+        parse_mode="HTML",
+    )
+
+
+# ============================================================
 # МЕНЮ
 # ============================================================
 
@@ -76,7 +115,7 @@ MENU = {
     # --------------------------------------------------------
 
     "coffee": {
-        "title": "☕️ Кофе",
+        "title": "☕ Кофе",
         "items": [
             ("Эспрессо", "24/28k"),
             ("Американо", "24/28/42k"),
@@ -292,7 +331,8 @@ carts = {}
 
 # (user_id, category_id, index) -> выбранное количество
 quantities = {}
-[20.09.2026 18:49] ᅠᅠ ᅠᅠ­: # (user_id, category_id, index) -> выбранная цена
+
+# (user_id, category_id, index) -> выбранная цена
 selected_prices = {}
 
 # (user_id, category_id, index) -> выбранный вариант
@@ -586,7 +626,7 @@ def main_keyboard():
         keyboard=[
             [
                 KeyboardButton(
-                    text="☕️ МЕНЮ"
+                    text="☕ МЕНЮ"
                 ),
                 KeyboardButton(
                     text="🛒 КОРЗИНА"
@@ -720,7 +760,8 @@ def product_keyboard(
                     index,
                     current_price,
                 )
-[20.09.2026 18:49] ᅠᅠ ᅠᅠ­: rows.append(
+
+        rows.append(
             [
                 InlineKeyboardButton(
                     text="➖",
@@ -829,7 +870,7 @@ def cart_text(user_id):
 
         return (
             "🛒 <b>ВАША КОРЗИНА ПУСТА</b>\n\n"
-            "Выберите товары из меню ☕️"
+            "Выберите товары из меню ☕"
         )
 
     text = (
@@ -851,7 +892,7 @@ def cart_text(user_id):
             )
 
         text += (
-            f"☕️ {html.escape(item_name)}\n"
+            f"☕ {html.escape(item_name)}\n"
             f"{item['quantity']} × "
             f"{format_price(item['price'])} = "
             f"<b>{format_price(subtotal)}</b>\n\n"
@@ -980,7 +1021,7 @@ def cart_keyboard(user_id):
     rows.append(
         [
             InlineKeyboardButton(
-                text="☕️ Меню",
+                text="☕ Меню",
                 callback_data="categories",
             )
         ]
@@ -1001,7 +1042,7 @@ async def start(
 ):
 
     await message.answer(
-        f"☕️ <b>Добро пожаловать в "
+        f"☕ <b>Добро пожаловать в "
         f"{COFFEE_NAME}!</b>\n\n"
         "Выберите раздел:",
         reply_markup=main_keyboard(),
@@ -1030,14 +1071,14 @@ async def myid(
 # ============================================================
 
 @dp.message(
-    F.text == "☕️ МЕНЮ"
+    F.text == "☕ МЕНЮ"
 )
 async def menu(
     message: types.Message,
 ):
 
     await message.answer(
-        "☕️ <b>Меню Profi Kofi</b>\n\n"
+        "☕ <b>Меню Profi Kofi</b>\n\n"
         "Выберите категорию:",
         reply_markup=categories_keyboard(),
         parse_mode="HTML",
@@ -1060,6 +1101,13 @@ async def open_category(
         .split(":")[1]
     )
 
+    if category_id not in MENU:
+        await callback.answer(
+            "Категория не найдена.",
+            show_alert=True,
+        )
+        return
+
     await callback.message.edit_text(
         category_text(category_id),
         reply_markup=product_keyboard(
@@ -1075,7 +1123,8 @@ async def open_category(
 # ============================================================
 # НАЗАД К КАТЕГОРИЯМ
 # ============================================================
-[20.09.2026 18:49] ᅠᅠ ᅠᅠ­: @dp.callback_query(
+
+@dp.callback_query(
     F.data == "categories"
 )
 async def back_categories(
@@ -1083,7 +1132,7 @@ async def back_categories(
 ):
 
     await callback.message.edit_text(
-        "☕️ <b>Меню Profi Kofi</b>\n\n"
+        "☕ <b>Меню Profi Kofi</b>\n\n"
         "Выберите категорию:",
         reply_markup=categories_keyboard(),
         parse_mode="HTML",
@@ -1108,6 +1157,13 @@ async def product_click(
     )
 
     index = int(index)
+
+    if category_id not in MENU:
+        await callback.answer(
+            "Товар не найден.",
+            show_alert=True,
+        )
+        return
 
     user_id = callback.from_user.id
 
@@ -1428,15 +1484,6 @@ async def cart_plus(
 
         cart[index]["quantity"] += 1
 
-        item = cart[index]
-
-        set_quantity(
-            user_id,
-            item["category_id"],
-            item["index"],
-            item["quantity"],
-        )
-
     await callback.message.edit_text(
         cart_text(user_id),
         reply_markup=cart_keyboard(user_id),
@@ -1475,15 +1522,6 @@ async def cart_minus(
 
             cart.pop(index)
 
-        else:
-
-            set_quantity(
-                user_id,
-                item["category_id"],
-                item["index"],
-                item["quantity"],
-            )
-
     await callback.message.edit_text(
         cart_text(user_id),
         reply_markup=cart_keyboard(user_id),
@@ -1513,7 +1551,8 @@ async def cart_delete(
     cart = get_cart(user_id)
 
     if index < len(cart):
-[20.09.2026 18:49] ᅠᅠ ᅠᅠ­: cart.pop(index)
+
+        cart.pop(index)
 
     await callback.message.edit_text(
         cart_text(user_id),
@@ -1642,7 +1681,7 @@ async def get_comment(
 
     else:
 
-        comment = message.text.strip()
+        comment = (message.text or "").strip()
 
         if len(comment) > 500:
 
@@ -1749,7 +1788,7 @@ async def get_name(
 
         return
 
-    name = message.text.strip()
+    name = (message.text or "").strip()
 
     if len(name) < 2:
 
@@ -1795,8 +1834,16 @@ async def get_phone(
 
         return
 
+    phone = (message.text or "").strip()
+
+    if len(phone) < 5:
+        await message.answer(
+            "Пожалуйста, напишите номер телефона."
+        )
+        return
+
     await state.update_data(
-        phone=message.text.strip()
+        phone=phone
     )
 
     await state.set_state(
@@ -1906,7 +1953,7 @@ async def get_address(
 
         return
 
-    address = message.text.strip()
+    address = (message.text or "").strip()
 
     if len(address) < 5:
 
@@ -1923,7 +1970,9 @@ async def get_address(
     await ask_payment(
         message,
     )
-[20.09.2026 18:49] ᅠᅠ ᅠᅠ­: # ============================================================
+
+
+# ============================================================
 # СПОСОБ ОПЛАТЫ
 # ============================================================
 
@@ -2110,7 +2159,7 @@ async def pay_cash(
     )
 
     await callback.message.answer(
-        "Спасибо! ☕️\n\n"
+        "Спасибо! ☕\n\n"
         "Мы сообщим вам статус заказа.",
         reply_markup=main_keyboard(),
     )
@@ -2235,10 +2284,13 @@ async def cancel_pending(
     if user_id not in pending_orders:
         return
 
-    pending_orders.pop(
+    order = pending_orders.pop(
         user_id,
         None,
     )
+
+    if order:
+        order["status"] = "Отменён"
 
     await message.answer(
         "❌ Заказ отменён.",
@@ -2270,7 +2322,7 @@ def make_barista_text(order):
 
     text = (
 
-        f"☕️ <b>ЗАКАЗ №"
+        f"☕ <b>ЗАКАЗ №"
         f"{order['order_id']}</b>\n\n"
 
         f"👤 Клиент: "
@@ -2337,7 +2389,8 @@ def make_barista_text(order):
         f"⏳ <b>Статус: "
         f"{html.escape(order['status'])}</b>"
     )
-[20.09.2026 18:49] ᅠᅠ ᅠᅠ­: # Реквизиты показываем в заказе
+
+    # Реквизиты показываем в заказе
     # только если выбран перевод.
     if order["payment_method"] == "Переводом":
 
@@ -2713,7 +2766,8 @@ async def payment_photo(
 async def payment_document(
     message: types.Message,
 ):
-[20.09.2026 18:49] ᅠᅠ ᅠᅠ­: user_id = (
+
+    user_id = (
         message.from_user.id
     )
 
@@ -2773,36 +2827,6 @@ async def payment_document(
 
 
 # ============================================================
-# ОТМЕНА ОЖИДАНИЯ ОПЛАТЫ
-# ============================================================
-
-@dp.message(
-    F.text == "❌ Отменить заказ"
-)
-async def cancel_pending(
-    message: types.Message,
-):
-
-    user_id = (
-        message.from_user.id
-    )
-
-    if user_id not in pending_orders:
-
-        return
-
-    pending_orders.pop(
-        user_id,
-        None,
-    )
-
-    await message.answer(
-        "❌ Заказ отменён.",
-        reply_markup=main_keyboard(),
-    )
-
-
-# ============================================================
 # СТАТУСЫ
 # ============================================================
 
@@ -2842,7 +2866,7 @@ CLIENT_MESSAGES = {
 
     "done":
         "🏁 Заказ завершён.\n\n"
-        "Спасибо, что выбрали Profi Kofi ☕️",
+        "Спасибо, что выбрали Profi Kofi ☕",
 }
 
 
@@ -3080,7 +3104,7 @@ async def change_status(
         await bot.send_message(
             order["user_id"],
 
-            f"☕️ <b>Заказ №{order_id}</b>\n\n"
+            f"☕ <b>Заказ №{order_id}</b>\n\n"
             f"{CLIENT_MESSAGES[action]}",
 
             parse_mode="HTML",
@@ -3128,7 +3152,7 @@ async def main():
         "======================================"
     )
     print(
-        "☕️ PROFI KOFI BOT"
+        "☕ PROFI KOFI BOT"
     )
     print(
         "✅ БОТ ЗАПУЩЕН"
@@ -3138,10 +3162,16 @@ async def main():
     )
     print()
 
+    # Удаляем старый webhook перед запуском polling.
+    # Иначе Telegram отвечает: can't use getUpdates while webhook is active.
+    await bot.delete_webhook(
+        drop_pending_updates=True
+    )
+
     await dp.start_polling(
         bot
     )
 
 
-if name == "main":
+if __name__ == "__main__":
     asyncio.run(main())
